@@ -1,4 +1,5 @@
 alembic==1.20.1
+altgraph==0.17.5
 blinker==1.9.0
 click==8.5.0
 colorama==0.4.6
@@ -14,11 +15,17 @@ Jinja2==3.1.6
 Mako==1.4.3
 MarkupSafe==3.0.4
 packaging==26.3
+pefile==2024.8.26
 pluggy==1.7.0
 Pygments==2.21.0
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.10
 pytest==9.2.0
 pytest-cov==7.1.0
+pywin32-ctypes==0.2.3
+setuptools==84.2.1
 SQLAlchemy==2.1.8
 typing_extensions==4.16.0
+waitress==3.0.2
 Werkzeug==3.1.9
 WTForms==3.3.2

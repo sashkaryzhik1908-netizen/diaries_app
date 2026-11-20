@@ -1,20 +1,33 @@
+# Virtual environment
 venv/
 .venv/
-env/
 
+# Python
 __pycache__/
 *.py[cod]
 
-.env
-.env.*
+# PyInstaller
+build/
+dist/
 
+# Installer
+Diaries_Setup.exe
+
+# User database backup
+instance/database_backup.db
+
+# Environment
+.env
+
+# IDE
 .idea/
 .vscode/
 
-*.log
-*.tmp
-*.bak
-
+# Tests
+.pytest_cache/
 .coverage
 htmlcov/
-instance/database_backup.db
+
+# OS
+.DS_Store
+Thumbs.db
