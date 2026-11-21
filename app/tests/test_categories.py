@@ -11,11 +11,11 @@ from app.models import (
 )
 
 
-def create_user(username):
+def create_user(username, is_admin=False):
     user = User(
         username=username,
         password=generate_password_hash("123456"),
-        is_admin=False,
+        is_admin=is_admin,
     )
     db.session.add(user)
     db.session.commit()
@@ -32,7 +32,7 @@ def login(client, username):
 # Просмотр списка категорий
 def test_list_categories(client, app):
     with app.app_context():
-        create_user("user")
+        create_user("user", is_admin=True)
 
         category_1 = Category(
             name="Неврологический статус",
@@ -65,7 +65,7 @@ def test_list_categories(client, app):
 # Просмотр отдельной категории
 def test_view_category(client, app):
     with app.app_context():
-        create_user("user")
+        create_user("user", is_admin=True)
 
         category = Category(
             name="Жалобы",
@@ -100,7 +100,7 @@ def test_view_category(client, app):
 # Просмотр списка вариантов переменной
 def test_list_options(client, app):
     with app.app_context():
-        create_user("user")
+        create_user("user", is_admin=True)
 
         category = Category(
             name="Состояние",

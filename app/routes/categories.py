@@ -275,6 +275,7 @@ def delete_option(variable_id, option_id):
 # Список категорий
 @categories_bp.route("/categories")
 @login_required
+@admin_required
 def list_categories():
     categories = Category.query.order_by(Category.order).all()
 
@@ -287,6 +288,7 @@ def list_categories():
 # Просмотр категории
 @categories_bp.route("/categories/<int:category_id>")
 @login_required
+@admin_required
 def view_category(category_id):
     category = Category.query.get_or_404(category_id)
 
@@ -306,6 +308,7 @@ def view_category(category_id):
 # Список вариантов переменной
 @categories_bp.route("/categories/<int:variable_id>/options")
 @login_required
+@admin_required
 def list_options(variable_id):
     variable = TemplateVariable.query.get_or_404(variable_id)
 

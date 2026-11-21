@@ -13,6 +13,7 @@ therapy_bp = Blueprint("therapy", __name__)
 # Список целей терапии
 @therapy_bp.route("/therapy/purposes")
 @login_required
+@admin_required
 def list_therapy_purposes():
     purposes = TherapyPurpose.query.order_by(
         TherapyPurpose.name,
@@ -139,6 +140,7 @@ def delete_therapy_purpose(purpose_id):
 # Список препаратов
 @therapy_bp.route("/therapy/medications")
 @login_required
+@admin_required
 def list_therapy_medications():
     medications = TherapyMedication.query.order_by(TherapyMedication.name).all()
 

@@ -1,7 +1,148 @@
 {% extends "base.html" %}
-{% block title %}Очень главная страница{% endblock title %}
+
+{% block title %}Diaries — Главная{% endblock title %}
+
 {% block content %}
-<div class="container">
-  <h1>Очень главная страница</h1>
+
+<div class="container py-5">
+
+    <div class="mb-5">
+        <h1 class="fw-bold mb-2">Diaries</h1>
+        <p class="text-secondary fs-5">
+            Система создания и ведения медицинской документации
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Доступно всем авторизованным пользователям -->
+        {% if current_user.is_authenticated %}
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="mb-3 text-primary fs-2">
+                        <i class="bi bi-journal-medical"></i>
+                    </div>
+
+                    <h5 class="fw-bold">Медицинские дневники</h5>
+
+                    <p class="text-secondary">
+                        Создание, заполнение и просмотр медицинских дневников.
+                    </p>
+
+                    <a href="{{ url_for('diaries.list_diaries') }}"
+                       class="btn btn-outline-primary mt-2">
+                        Перейти
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+
+        <!-- Только для администратора -->
+        {% if current_user.is_authenticated and current_user.is_admin %}
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="mb-3 text-success fs-2">
+                        <i class="bi bi-droplet-half"></i>
+                    </div>
+
+                    <h5 class="fw-bold">Лаборатория</h5>
+
+                    <p class="text-secondary">
+                        Управление лабораторными категориями и показателями.
+                    </p>
+
+                    <a href="{{ url_for('laboratory.list_categories') }}"
+                       class="btn btn-outline-success mt-2">
+                        Перейти
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="mb-3 text-info fs-2">
+                        <i class="bi bi-capsule"></i>
+                    </div>
+
+                    <h5 class="fw-bold">Терапия</h5>
+
+                    <p class="text-secondary">
+                        Управление целями терапии.
+                    </p>
+
+                    <a href="{{ url_for('therapy.list_therapy_purposes') }}"
+                       class="btn btn-outline-info mt-2">
+                        Перейти
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="mb-3 text-info fs-2">
+                        <i class="bi bi-capsule-pill"></i>
+                    </div>
+
+                    <h5 class="fw-bold">Препараты</h5>
+
+                    <p class="text-secondary">
+                        Управление справочником лекарственных препаратов.
+                    </p>
+
+                    <a href="{{ url_for('therapy.list_therapy_medications') }}"
+                       class="btn btn-outline-info mt-2">
+                        Перейти
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="mb-3 text-warning fs-2">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+
+                    <h5 class="fw-bold">Шаблоны</h5>
+
+                    <p class="text-secondary">
+                        Настройка категорий, переменных и вариантов заполнения.
+                    </p>
+
+                    <a href="{{ url_for('categories.list_categories') }}"
+                       class="btn btn-outline-warning mt-2">
+                        Перейти
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="card border-0 shadow-sm mt-5 bg-light">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-2">Добро пожаловать в Diaries</h5>
+
+            <p class="text-secondary mb-0">
+                Используйте приложение для ведения и заполнения
+                медицинских дневников.
+            </p>
+        </div>
+    </div>
+
 </div>
+
 {% endblock content %}

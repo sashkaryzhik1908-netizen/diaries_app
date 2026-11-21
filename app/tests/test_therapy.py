@@ -13,15 +13,20 @@ from app.models import (
 
 
 # Создание пользователя
-def create_user(username):
+def create_user(username, is_admin=False):
     user = User(
         username=username,
         password=generate_password_hash("123456"),
-        is_admin=False,
+        is_admin=is_admin,
     )
     db.session.add(user)
     db.session.commit()
     return user
+
+
+# Создание администратора
+def create_admin(username):
+    return create_user(username, is_admin=True)
 
 
 # Авторизация пользователя
@@ -38,7 +43,7 @@ def login(client, username):
 # Проверка страницы целей терапии
 def test_list_therapy_purposes(client, app):
     with app.app_context():
-        create_user("user1")
+        create_admin("admin")
 
         db.session.add_all(
             [
@@ -54,7 +59,7 @@ def test_list_therapy_purposes(client, app):
         )
         db.session.commit()
 
-    login(client, "user1")
+    login(client, "admin")
 
     response = client.get("/therapy/purposes")
 
@@ -66,7 +71,7 @@ def test_list_therapy_purposes(client, app):
 # Проверка сортировки целей терапии
 def test_therapy_purposes_order(client, app):
     with app.app_context():
-        create_user("user1")
+        create_admin("admin")
 
         db.session.add_all(
             [
@@ -86,7 +91,7 @@ def test_therapy_purposes_order(client, app):
         )
         db.session.commit()
 
-    login(client, "user1")
+    login(client, "admin")
 
     response = client.get("/therapy/purposes")
     html = response.get_data(as_text=True)
@@ -99,7 +104,7 @@ def test_therapy_purposes_order(client, app):
 # Проверка страницы препаратов
 def test_list_therapy_medications(client, app):
     with app.app_context():
-        create_user("user1")
+        create_admin("admin")
 
         db.session.add_all(
             [
@@ -109,7 +114,7 @@ def test_list_therapy_medications(client, app):
         )
         db.session.commit()
 
-    login(client, "user1")
+    login(client, "admin")
 
     response = client.get("/therapy/medications")
 
@@ -121,7 +126,7 @@ def test_list_therapy_medications(client, app):
 # Проверка сортировки препаратов по названию
 def test_therapy_medications_order(client, app):
     with app.app_context():
-        create_user("user1")
+        create_admin("admin")
 
         db.session.add_all(
             [
@@ -132,7 +137,7 @@ def test_therapy_medications_order(client, app):
         )
         db.session.commit()
 
-    login(client, "user1")
+    login(client, "admin")
 
     response = client.get("/therapy/medications")
     html = response.get_data(as_text=True)
@@ -145,10 +150,7 @@ def test_therapy_medications_order(client, app):
 # Добавление цели терапии
 def test_add_therapy_purpose(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
-        db.session.commit()
+        create_admin("admin")
 
     login(client, "admin")
 
@@ -176,9 +178,7 @@ def test_add_therapy_purpose(client, app):
 # Запрет добавления дублирующей цели терапии
 def test_add_duplicate_therapy_purpose(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
+        create_admin("admin")
 
         db.session.add(
             TherapyPurpose(
@@ -213,9 +213,7 @@ def test_add_duplicate_therapy_purpose(client, app):
 # Редактирование цели терапии
 def test_edit_therapy_purpose(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
+        create_admin("admin")
 
         purpose = TherapyPurpose(
             name="Старая цель",
@@ -250,9 +248,7 @@ def test_edit_therapy_purpose(client, app):
 # Запрет изменения цели на существующее название
 def test_edit_therapy_purpose_duplicate(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
+        create_admin("admin")
 
         purposes = [
             TherapyPurpose(
@@ -294,10 +290,7 @@ def test_edit_therapy_purpose_duplicate(client, app):
 # Несуществующая цель терапии
 def test_edit_nonexistent_therapy_purpose(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
-        db.session.commit()
+        create_admin("admin")
 
     login(client, "admin")
 
@@ -309,9 +302,7 @@ def test_edit_nonexistent_therapy_purpose(client, app):
 # Удаление цели терапии
 def test_delete_therapy_purpose(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
+        create_admin("admin")
 
         purpose = TherapyPurpose(
             name="Тестовая цель",
@@ -339,9 +330,7 @@ def test_delete_therapy_purpose(client, app):
 # Запрет удаления используемой цели терапии
 def test_delete_used_therapy_purpose(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
+        user = create_admin("admin")
 
         diary = Diary(
             user_id=user.id,
@@ -386,10 +375,7 @@ def test_delete_used_therapy_purpose(client, app):
 # Добавление препарата
 def test_add_therapy_medication(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
-        db.session.commit()
+        create_admin("admin")
 
     login(client, "admin")
 
@@ -413,9 +399,7 @@ def test_add_therapy_medication(client, app):
 # Запрет добавления дублирующего препарата
 def test_add_duplicate_therapy_medication(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
+        create_admin("admin")
 
         db.session.add(TherapyMedication(name="Цефтриаксон"))
         db.session.commit()
@@ -442,10 +426,7 @@ def test_add_duplicate_therapy_medication(client, app):
 # Проверка обязательного названия препарата
 def test_add_therapy_medication_without_name(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
-        db.session.commit()
+        create_admin("admin")
 
     login(client, "admin")
 
@@ -463,9 +444,7 @@ def test_add_therapy_medication_without_name(client, app):
 # Редактирование препарата
 def test_edit_therapy_medication(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
+        create_admin("admin")
 
         medication = TherapyMedication(name="Старое название")
         db.session.add(medication)
@@ -492,9 +471,7 @@ def test_edit_therapy_medication(client, app):
 # Запрет изменения названия на существующее
 def test_edit_therapy_medication_duplicate(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
+        create_admin("admin")
 
         medications = [
             TherapyMedication(name="Первый препарат"),
@@ -524,9 +501,7 @@ def test_edit_therapy_medication_duplicate(client, app):
 # Удаление препарата
 def test_delete_therapy_medication(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
+        create_admin("admin")
 
         medication = TherapyMedication(name="Тестовый препарат")
         db.session.add(medication)
@@ -551,10 +526,7 @@ def test_delete_therapy_medication(client, app):
 # Несуществующий препарат
 def test_edit_nonexistent_therapy_medication(client, app):
     with app.app_context():
-        create_user("admin")
-        user = User.query.filter_by(username="admin").first()
-        user.is_admin = True
-        db.session.commit()  # Сохраняем права администратора
+        create_admin("admin")
 
     login(client, "admin")
 

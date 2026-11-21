@@ -36,6 +36,7 @@ laboratory_bp = Blueprint(
 
 @laboratory_bp.route("/laboratory/categories")
 @login_required
+@admin_required
 def list_categories():
     """Список категорий лабораторных исследований."""
     categories = LaboratoryCategory.query.order_by(LaboratoryCategory.name).all()
@@ -48,6 +49,7 @@ def list_categories():
 
 @laboratory_bp.route("/laboratory/categories/<int:category_id>")
 @login_required
+@admin_required
 def view_category(category_id):
     """Просмотр категории и её показателей."""
     category = LaboratoryCategory.query.get_or_404(category_id)
@@ -273,6 +275,7 @@ def delete_indicator(indicator_id):
     "/laboratory/aliases/<int:indicator_id>",
 )
 @login_required
+@admin_required
 def list_aliases(indicator_id):
     """Список альтернативных названий показателя."""
     indicator = LaboratoryIndicator.query.get_or_404(indicator_id)
