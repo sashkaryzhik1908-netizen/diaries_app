@@ -9,7 +9,7 @@
 <br><div class="container">
 
     {% if category %}
-        <h1>Редактор шаблона</h1>
+        <h1>Редактор шаблона</h1><br>
 
         <form
             method="POST"
@@ -21,7 +21,12 @@
             <button type="submit" class="btn btn-danger">
                 Удалить категорию
             </button>
+            <a class="btn btn-secondary"
+                href="{{ url_for('categories.list_categories') }}">
+                    Назад
+            </a>
         </form>
+
     {% else %}
         <h1>Добавление шаблона</h1>
     {% endif %}<br>

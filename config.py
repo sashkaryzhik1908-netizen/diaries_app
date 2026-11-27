@@ -15,4 +15,7 @@ class Config:
             "Не задан SECRET_KEY. Создайте файл .env на основе .env.example."
         )
 
-    SQLALCHEMY_DATABASE_URI = "sqlite:///database.db"
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL",
+        "sqlite:///database.db",
+    )

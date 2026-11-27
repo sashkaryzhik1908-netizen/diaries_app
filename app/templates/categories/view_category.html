@@ -4,7 +4,10 @@
 <br><div class="container">
     <h1>{{ category.name }}</h1>
     <p>{{ category.template }}</p>
-
+    <a class="btn btn-warning mb-3"
+       href="{{ url_for('categories.edit_category', category_id=category.id) }}">
+        Редактировать шаблон
+    </a>
     <a class="btn btn-primary mb-3"
        href="{{ url_for('categories.add_variable', category_id=category.id) }}">
         Добавить переменную

@@ -29,5 +29,6 @@ SQLAlchemy==2.1.8
 stdlib-list==0.12.0
 typing_extensions==4.16.0
 tzdata==2026.6
+waitress==3.0.2
 Werkzeug==3.1.9
 WTForms==3.3.2
