@@ -1,0 +1,15 @@
+[run]
+source =
+    app
+    laboratory
+    instrumental
+
+omit =
+    */tests/*
+    */test_*.py
+    */conftest.py
+
+[report]
+show_missing = True
+skip_empty = True
+precision = 2

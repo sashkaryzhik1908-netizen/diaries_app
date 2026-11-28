@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}
+Лабораторные исследования
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+
+    <h1 class="mb-4">
+        Лабораторные исследования
+    </h1>
+
+    <p class="text-muted">
+        Дневник №{{ diary.number }}
+    </p>
+
+    <form method="POST">
+
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+
+            {{ form.source_text.label(class="form-label") }}
+
+            {{ form.source_text(
+                class="form-control",
+                rows="18",
+                placeholder="Вставьте сюда текст лабораторных исследований..."
+            ) }}
+
+            {% for error in form.source_text.errors %}
+                <div class="text-danger">
+                    {{ error }}
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- ИИ-анализ -->
+        <div class="mb-3">
+
+            <button
+                type="button"
+                id="ai-analyze-btn"
+                class="btn btn-success"
+            >
+                ИИ-анализ
+            </button>
+
+            <span
+                id="ai-loading"
+                class="text-muted ms-2 d-none"
+            >
+                <span class="spinner-border spinner-border-sm"></span>
+                Формирование заключения...
+            </span>
+
+        </div>
+
+        <!-- Ошибки ИИ -->
+        <div
+            id="ai-error"
+            class="alert alert-danger d-none"
+        ></div>
+
+        <!-- Заключение -->
+        <div class="mb-3">
+
+            {{ form.ai_conclusion.label(
+                class="form-label fw-bold",
+                for="ai-conclusion"
+            ) }}
+
+            {{ form.ai_conclusion(
+                id="ai-conclusion",
+                class="form-control",
+                rows="8",
+                placeholder="Здесь будет сформировано заключение..."
+            ) }}
+
+            {% for error in form.ai_conclusion.errors %}
+                <div class="text-danger">
+                    {{ error }}
+                </div>
+            {% endfor %}
+
+            <div class="form-text">
+                Заключение ИИ необходимо проверить перед сохранением.
+            </div>
+
+        </div>
+
+        {{ form.submit(class="btn btn-primary") }}
+
+        <a
+            href="{{ url_for('diaries.view_diary', diary_id=diary.id) }}"
+            class="btn btn-secondary"
+        >
+            Назад к дневнику
+        </a>
+
+    </form>
+
+</div>
+
+<script>
+    const analyzeButton = document.getElementById("ai-analyze-btn");
+    const sourceText = document.getElementById("source_text");
+    const conclusion = document.getElementById("ai-conclusion");
+    const loading = document.getElementById("ai-loading");
+    const errorBlock = document.getElementById("ai-error");
+    const submitButton = document.getElementById("submit");
+
+    analyzeButton.addEventListener("click", async function () {
+
+        errorBlock.classList.add("d-none");
+        errorBlock.textContent = "";
+
+        if (!sourceText.value.trim()) {
+            errorBlock.textContent = "Введите лабораторные исследования.";
+            errorBlock.classList.remove("d-none");
+            return;
+        }
+
+        analyzeButton.disabled = true;
+        submitButton.disabled = true;
+        sourceText.readOnly = true;
+        conclusion.readOnly = true;
+
+        loading.classList.remove("d-none");
+
+        try {
+            const response = await fetch(
+                "{{ url_for('laboratory.analyze_diary_laboratory', diary_id=diary.id) }}",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": document.querySelector(
+                            'input[name="csrf_token"]'
+                        ).value
+                    },
+                    body: JSON.stringify({
+                        source_text: sourceText.value
+                    })
+                }
+            );
+
+            if (!response.headers.get("content-type")?.includes("application/json")) {
+                throw new Error("Сервер вернул некорректный ответ.");
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error || "Ошибка формирования заключения."
+                );
+            }
+
+            conclusion.value = data.conclusion;
+
+        } catch (error) {
+
+            errorBlock.textContent = error.message;
+            errorBlock.classList.remove("d-none");
+
+        } finally {
+
+            analyzeButton.disabled = false;
+            submitButton.disabled = false;
+            sourceText.readOnly = false;
+            conclusion.readOnly = false;
+
+            loading.classList.add("d-none");
+
+        }
+    });
+</script>
+
+{% endblock content %}

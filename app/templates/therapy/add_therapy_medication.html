@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if "edit" in request.path %}
+    Редактор препарата
+    {% else %}
+    Добавление препарата
+    {% endif %}
+{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if "edit" in request.path %}
+    <h1 class="mb-4">Редактор препарата</h1>
+    {% else %}
+    <h1 class="mb-4">Добавление препарата</h1>
+    {% endif %}
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control form-control-lg", placeholder="Введите название препарата") }}
+        </div>
+        <div class="mb-3">
+        <label class="form-label">Цели терапии</label>
+
+        <select id="purpose-select" class="form-select">
+            <option value="">Выберите цель терапии</option>
+            {% for purpose in form.purpose.choices %}
+                <option value="{{ purpose.value }}">
+                    {{ purpose.label }}
+                </option>
+            {% endfor %}
+        </select><br>
+
+        <button type="button"
+                id="add-purpose"
+                class="btn btn-outline-primary mt-2">
+            Добавить
+        </button>
+
+        <div class="list-group mt-3" id="selected-purposes">
+        </div>
+
+        <input type="hidden"
+       name="purpose_ids"
+       id="purpose-results"
+       value="{{ request.form.get('purpose_ids', '') if request.method == 'POST' else (medication.purposes | map(attribute='id') | join(',') if medication else '') }}">
+    </div>
+        <div class="d-flex gap-2">
+            {{ form.submit(class="btn btn-primary") }}
+
+            <a href="{{ url_for('therapy.list_therapy_medications') }}"
+               class="btn btn-secondary">
+                Отмена
+            </a>
+        </div>
+    </form>
+
+</div>
+{% endblock content %}
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const select = document.getElementById("purpose-select");
+    const addButton = document.getElementById("add-purpose");
+    const list = document.getElementById("selected-purposes");
+    const result = document.getElementById("purpose-results");
+
+    if (!select || !addButton || !list || !result) return;
+
+    // Обновление скрытого поля с ID целей
+    function updateResult() {
+        const ids = Array.from(list.children).map(item => item.dataset.id);
+        result.value = ids.join(",");
+    }
+
+    // Добавление цели в список
+    function addPurpose(purposeId, purposeName) {
+        if (!purposeId) return;
+
+        // Проверка на дубликат
+        const exists = Array.from(list.children).some(
+            item => item.dataset.id === purposeId
+        );
+
+        if (exists) return;
+
+        const item = document.createElement("div");
+        item.className = "list-group-item d-flex justify-content-between align-items-center";
+        item.dataset.id = purposeId;
+
+        const name = document.createElement("span");
+        name.textContent = purposeName;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "btn btn-sm btn-outline-danger";
+        removeButton.textContent = "Удалить";
+
+        removeButton.addEventListener("click", function () {
+            item.remove();
+            updateResult();
+        });
+
+        item.append(name, removeButton);
+        list.appendChild(item);
+
+        updateResult();
+    }
+
+    // Нажатие кнопки Добавить
+    addButton.addEventListener("click", function () {
+        const purposeId = select.value;
+
+        if (!purposeId) return;
+
+        const purposeName = select.options[select.selectedIndex].text;
+
+        addPurpose(purposeId, purposeName);
+    });
+
+    // Восстановление целей при редактировании препарата
+    if (result.value) {
+        const savedIds = result.value.split(",");
+
+        savedIds.forEach(purposeId => {
+            const option = Array.from(select.options).find(
+                option => option.value === purposeId
+            );
+
+            if (option) {
+                addPurpose(purposeId, option.text);
+            }
+        });
+    }
+});
+</script>
+{% endblock scripts %}

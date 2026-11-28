@@ -1,0 +1,32 @@
+<div class="container">
+
+    {# Flash-сообщения #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {# Ошибки валидации формы #}
+    {% if form is defined and form.errors %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {% for field_name, errors in form.errors.items() %}
+                {% for error in errors %}
+                    <div>
+                        {% if field_name in form %}
+                            <strong>{{ form[field_name].label.text }}:</strong>
+                        {% endif %}
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+        </div>
+    {% endif %}
+
+</div>

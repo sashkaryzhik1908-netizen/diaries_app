@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+Редактирование профиля
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+
+    <h1 class="mb-4">Редактирование профиля</h1>
+
+    <div class="card mb-3">
+        <div class="card-body">
+
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <div class="mb-3">
+                    {{ form.username.label(class="form-label") }}
+                    {{ form.username(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control") }}
+                </div>
+                <hr>
+
+                <h5 class="mb-3">Смена пароля</h5>
+
+                <p class="text-muted">
+                    Оставь поля пароля пустыми, если не хочешь его менять.
+                </p>
+
+                <div class="mb-3">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-control") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.confirm.label(class="form-label") }}
+                    {{ form.confirm(class="form-control") }}
+                </div>
+
+                {{ form.submit(class="btn btn-primary") }}
+
+                <a href="{{ url_for('auth.user') }}"
+                   class="btn btn-outline-secondary">
+                    Отмена
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock content %}

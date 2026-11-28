@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}
+Альтернативные названия — {{ indicator.name }}
+{% endblock title %}
+
+{% block content %}
+<br><div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1>Альтернативные названия</h1>
+            <h5 class="text-muted">{{ indicator.name }}</h5>
+        </div>
+
+        <a href="{{ url_for(
+            'instrumental.list_indicators'
+        ) }}"
+           class="btn btn-secondary">
+            Назад к списку методов
+        </a>
+
+    </div>
+
+    {% include "_flash_messages.html" %}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h3>Список названий</h3>
+
+        <a href="{{ url_for(
+            'instrumental.add_alias',
+            indicator_id=indicator.id
+        ) }}"
+           class="btn btn-primary">
+            Добавить название
+        </a>
+
+    </div>
+
+    {% if aliases %}
+
+        <div class="list-group">
+
+            {% for alias in aliases %}
+
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+
+                    <span>{{ alias.alias }}</span>
+
+                    <div class="d-flex gap-2">
+
+                        <a href="{{ url_for(
+                            'instrumental.edit_alias',
+                            alias_id=alias.id
+                        ) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            Изменить
+                        </a>
+
+                        <form method="POST"
+                              action="{{ url_for(
+                                  'instrumental.delete_alias',
+                                  alias_id=alias.id
+                              ) }}"
+                              onsubmit="return confirm('Удалить альтернативное название?');">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger">
+                                Удалить
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+            Для этого метода пока нет альтернативных названий.
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock content %}

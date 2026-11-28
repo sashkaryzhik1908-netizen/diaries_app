@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% if alias %}
+    {% set page_title = "Редактирование альтернативного названия" %}
+{% else %}
+    {% set page_title = "Добавление альтернативного названия" %}
+{% endif %}
+
+{% if indicator %}
+    {% set indicator_name = indicator.name %}
+{% elif alias %}
+    {% set indicator_name = alias.indicator.name %}
+{% endif %}
+
+{% block title %}
+    {{ page_title }}
+{% endblock title %}
+
+{% block content %}
+<br>
+<div class="container">
+
+    {% if alias %}
+        {% set cancel_url = url_for(
+            'instrumental.list_aliases',
+            indicator_id=alias.indicator_id
+        ) %}
+    {% elif indicator %}
+        {% set cancel_url = url_for(
+            'instrumental.list_aliases',
+            indicator_id=indicator.id
+        ) %}
+    {% else %}
+        {% set cancel_url = url_for(
+            'instrumental.list_indicators'
+        ) %}
+    {% endif %}
+
+    <h1 class="mb-4">
+        {{ page_title }}
+    </h1>
+
+    {% if indicator_name is defined %}
+        <p class="text-muted">
+            Основной метод: {{ indicator_name }}
+        </p>
+    {% endif %}
+
+    <form method="POST">
+
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.indicator_id.label(class="form-label") }}
+
+            {{ form.indicator_id(class="form-select form-select-lg") }}
+
+            {% for error in form.indicator_id.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.alias.label(class="form-label") }}
+
+            {{ form.alias(
+                class="form-control form-control-lg",
+                placeholder="Например: ЭКГ"
+            ) }}
+
+            {% for error in form.alias.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="d-flex gap-2">
+
+            {{ form.submit(
+                class="btn btn-primary btn-lg",
+                value="Сохранить"
+            ) }}
+
+            <a href="{{ cancel_url }}" class="btn btn-secondary btn-lg">
+                Отмена
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+{% endblock content %}

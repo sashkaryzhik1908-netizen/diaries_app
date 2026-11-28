@@ -1,0 +1,56 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+Редактор шаблона
+{% endblock title %}
+
+{% block content %}
+<br><div class="container">
+
+    {% if category %}
+        <h1>Редактор шаблона</h1><br>
+
+        <form
+            method="POST"
+            action="{{ url_for('categories.del_category', category_id=category.id) }}"
+            onsubmit="return confirm('Вы действительно хотите удалить категорию?');"
+            class="mb-3"
+        >
+            {{ form.hidden_tag() }}
+            <button type="submit" class="btn btn-danger">
+                Удалить категорию
+            </button>
+            <a class="btn btn-secondary"
+                href="{{ url_for('categories.list_categories') }}">
+                    Назад
+            </a>
+        </form>
+
+    {% else %}
+        <h1>Добавление шаблона</h1>
+    {% endif %}<br>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.name(class="form-control", placeholder=form.name.label.text) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.slug(class="form-control", placeholder=form.slug.label.text) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.template.label(class="form-label") }}
+            {{ form.template(class="form-control", rows="10") }}
+        </div>
+        <div class="mb-3">
+            {{ form.order(class="form-control", placeholder=form.order.label.text) }}
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+
+</div>
+{% endblock content %}

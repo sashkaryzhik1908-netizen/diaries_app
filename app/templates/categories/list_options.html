@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Список опций{% endblock title %}
+
+{% block content %}
+<br>
+<div class="container">
+
+    <h2 class="mb-4">
+        Опции для переменной: {{ variable.label }}
+    </h2>
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+
+        <a
+            href="{{ url_for('categories.edit_variable', variable_id=variable.id) }}"
+            class="btn btn-warning btn-sm"
+        >
+            Редактировать переменную
+        </a>
+
+        <form
+            method="POST"
+            action="{{ url_for('categories.del_variable', variable_id=variable.id) }}"
+            onsubmit="return confirm('Вы уверены, что хотите удалить переменную?');"
+            class="m-0"
+        >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <button type="submit" class="btn btn-danger btn-sm">
+                Удалить переменную
+            </button>
+        </form>
+
+        <a
+            class="btn btn-secondary btn-sm"
+            href="{{ url_for('categories.view_category', category_id=variable.category.id) }}"
+        >
+            Назад
+        </a>
+
+    </div>
+
+    <hr>
+
+    {% for option in options %}
+    <div>
+
+        <div class="d-flex align-items-center gap-2 mb-2">
+
+            <h4 class="m-0">
+                {{ option.value }}
+            </h4>
+
+            <a
+                href="{{ url_for('categories.edit_option', variable_id=variable.id, option_id=option.id) }}"
+                class="btn btn-warning btn-sm"
+            >
+                Редактировать опцию
+            </a>
+
+            <form
+                action="{{ url_for('categories.delete_option', variable_id=variable.id, option_id=option.id) }}"
+                method="POST"
+                onsubmit="return confirm('Вы уверены, что хотите удалить опцию?');"
+                class="m-0"
+            >
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <button type="submit" class="btn btn-danger btn-sm">
+                    Удалить опцию
+                </button>
+            </form>
+
+        </div>
+
+        <p>{{ option.output_value }}</p>
+
+        <hr>
+
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock content %}

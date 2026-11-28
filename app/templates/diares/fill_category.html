@@ -1,0 +1,452 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+Создание дневника
+{% endblock title %}
+
+{% block content %}
+<br>
+<div class="container">
+    <h1 class="mb-4">{{ category.name }}</h1>
+
+    {% if errors %}
+    <div class="alert alert-danger">
+        {% for error in errors %}
+        <p class="mb-1">{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        {% if category.slug == "prescriptions" %}
+
+        <!-- Режим и диета -->
+        <div class="row mb-3">
+            <div class="col-md-6 mb-3">
+                <label for="regime" class="form-label">{{ sources["Режим"].name }}</label>
+                <select name="regime" id="regime" class="form-select" required>
+                    {% for value in sources["Режим"].values %}
+                    <option value="{{ value.name }}"
+                            {% if form_data.get('regime', [''])[0] == value.name %}selected{% endif %}>
+                        {{ value.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="diet" class="form-label">{{ sources["Диета"].name }}</label>
+                <select name="diet" id="diet" class="form-select" required>
+                    {% for value in sources["Диета"].values %}
+                    <option value="{{ value.name }}"
+                            {% if form_data.get('diet', [''])[0] == value.name %}selected{% endif %}>
+                        {{ value.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Режим восполнения и объём -->
+        <div class="row mb-3">
+            <div class="col-md-6 mb-3">
+                <label for="hydrotation" class="form-label">
+                    {{ sources["Режим восполнения"].name }}
+                </label>
+
+                {% set selected_hydrotation = form_data.get('hydrotation', [''])[0] %}
+
+                <select name="hydrotation"
+                        id="hydrotation"
+                        class="form-select"
+                        required>
+                    {% for value in sources["Режим восполнения"].values %}
+                    <option value="{{ value.name }}"
+                            {% if selected_hydrotation == value.name %}selected{% endif %}>
+                        {{ value.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="volume" class="form-label">
+                    Планируемый объём восполнения
+                </label>
+                <input type="text"
+                       name="volume"
+                       id="volume"
+                       class="form-control"
+                       placeholder="Введите объём в мл"
+                       value="{{ form_data.get('volume', [''])[0] }}"
+                       required>
+            </div>
+        </div>
+
+        <div id="prescription-rows"
+             data-medications-url="{{ url_for('diary_entries.get_medications_by_purpose', purpose_id=0) }}">
+
+            <div class="prescription-row border border-2 rounded-3 p-4 mb-4 shadow-sm"
+                 data-group-index="0">
+
+                <div class="mb-3">
+                    <label class="form-label">Цель терапии</label>
+                    <select name="purpose_id[0]"
+                            class="form-select purpose-select"
+                            required>
+                        <option value="">Выберите цель терапии</option>
+                        {% for purpose in purposes %}
+                        <option value="{{ purpose.id }}">{{ purpose.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="medications-container">
+                    <label class="form-label">Препараты</label>
+
+                    <div class="medication-row row g-2 mb-2">
+                        <div class="col-md-4">
+                            <select name="medication_id[0][]"
+                                    class="form-select"
+                                    required>
+                                <option value="">Выберите препарат</option>
+                                {% for medication in medications %}
+                                <option value="{{ medication.id }}">
+                                    {{ medication.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-3 dose-field">
+                            <input type="text"
+                                   name="dose[0][]"
+                                   class="form-control"
+                                   placeholder="доза"
+                                   required>
+                        </div>
+
+                        <div class="col-md-3 unit-field">
+                            <select name="unit[0][]"
+                                    class="form-select"
+                                    required>
+                                <option value="" disabled
+                                        {% if not form_data.get('unit[0][]', [''])[0] %}selected{% endif %}>
+                                    Выберите единицу измерения
+                                </option>
+
+                                {% for value in sources["Единицы измерения"].values %}
+                                <option value="{{ value.name }}"
+                                        {% if form_data.get('unit[0][]', [''])[0] == value.name %}selected{% endif %}>
+                                    {{ value.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button"
+                                    class="btn btn-outline-danger remove-medication w-100">
+                                Удалить
+                            </button>
+                        </div>
+                        <!-- Совместные препараты антибактериальной терапии -->
+                        <div class="col-12 additional-medications-container d-none">
+
+                            <div class="additional-medications-list"></div>
+
+                            <button type="button"
+                                    class="btn btn-outline-primary btn-sm add-additional-medication">
+                                Добавить совместный препарат
+                            </button>
+
+                        </div>
+                        <div class="col-12 antibacterial-fields d-none">
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label class="form-label">{{ sources["Способы введения"].name }}</label>
+                                    <select name="medication_method[0][]"
+                                            class="form-select">
+                                        {% for value in sources["Способы введения"].values %}
+                                        <option value="{{ value.name }}"
+                                                {% if form_data.get('medication_method[0][]', [''])[0] == value.name %}selected{% endif %}>
+                                            {{ value.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">{{ sources["Кратность"].name }}</label>
+                                    <select name="medication_frequency[0][]"
+                                            class="form-select">
+                                        <option value="">Не указана</option>
+                                        {% for value in sources["Кратность"].values %}
+                                        <option value="{{ value.name }}"
+                                                {% if form_data.get('medication_frequency[0][]', [''])[0] == value.name %}selected{% endif %}>
+                                            {{ value.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Дата начала</label>
+                                    <input type="date"
+                                           name="medication_start_date[0][]"
+                                           class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <br>
+
+                <button type="button"
+                        class="btn btn-outline-primary btn-sm mb-3 add-medication">
+                    Добавить препарат для совместного назначения
+                </button>
+
+                <hr>
+
+                <div class="general-prescription-fields">
+                    <div class="mb-3">
+                        <label class="form-label">{{ sources["Способы введения"].name }}</label>
+                        <select name="administration_method[0]"
+                                class="form-select">
+                            <option value="">Не указана</option>
+                            {% for value in sources["Способы введения"].values %}
+                            <option value="{{ value.name }}"
+                                    {% if form_data.get('administration_method[0]', [''])[0] == value.name %}selected{% endif %}>
+                                {{ value.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ sources["Кратность"].name }}</label>
+                        <select name="frequency[0]"
+                                class="form-select">
+                            <option value="">Не указана</option>
+                            {% for value in sources["Кратность"].values %}
+                            <option value="{{ value.name }}"
+                                    {% if form_data.get('frequency[0]', [''])[0] == value.name %}selected{% endif %}>
+                                {{ value.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Дата начала
+                            <span class="text-muted fw-normal small">
+                                (необязательное поле)
+                            </span>
+                        </label>
+                        <input type="date"
+                               name="start_date[0]"
+                               class="form-control">
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="btn btn-outline-danger remove-prescription">
+                    Удалить назначение
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-3 mb-3">
+            <button type="button"
+                    id="add-prescription"
+                    class="btn btn-outline-primary">
+                Добавить дополнительное назначение
+            </button>
+        </div>
+
+        {% else %}
+
+        {% for variable in variables %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <label class="form-label fw-bold">
+                    {{ variable.label }}
+                    {% if not variable.required %}
+                    <span class="text-muted fw-normal small">
+                        (необязательное поле)
+                    </span>
+                    {% endif %}
+                </label>
+
+                {% if variable.field_type == "select" %}
+                <select class="form-select"
+                        name="{{ variable.name }}"
+                        {% if variable.required %}required{% endif %}>
+                    <option value="">Выберите вариант</option>
+                    {% for option in variable.options|sort(attribute="value") %}
+                    <option value="{{ option.value }}"
+                            {% if form_data.get(variable.name, [''])[0] == option.value %}selected{% endif %}>
+                        {{ option.value }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                {% elif variable.field_type == "multiselect" %}
+                <select class="form-select mb-3"
+                        id="select_{{ variable.name }}">
+                    <option value="">Выберите вариант</option>
+                    {% for option in variable.options|sort(attribute="value") %}
+                    <option value="{{ option.id }}">
+                        {{ option.value }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <button type="button"
+                        class="btn btn-outline-primary mb-3"
+                        onclick="addOption('{{ variable.name }}')">
+                    Добавить
+                </button>
+
+                <div class="list-group mb-3"
+                     id="selected_{{ variable.name }}">
+                </div>
+
+                <input type="hidden"
+                       name="{{ variable.name }}"
+                       id="result_{{ variable.name }}"
+                       value="{{ form_data.get(variable.name, [''])[0] }}">
+
+                {% elif variable.field_type == "text" %}
+                    {% if variable.name == "diagnosis" %}
+                    <textarea class="form-control" name="{{ variable.name }}" rows="10" {% if variable.required %}required{% endif %}>{{ form_data.get(variable.name, [''])[0] }}</textarea>
+                    {% else %}
+                    <input type="text"
+                           class="form-control"
+                           name="{{ variable.name }}"
+                           value="{{ form_data.get(variable.name, [''])[0] }}"
+                           {% if variable.required %}required{% endif %}>
+                    {% endif %}
+
+                {% elif variable.field_type == "date" %}
+                <input type="date"
+                       class="form-control"
+                       name="{{ variable.name }}"
+                       value="{{ form_data.get(variable.name, [''])[0] }}"
+                       {% if variable.required %}required{% endif %}>
+
+                {% elif variable.field_type == "number" %}
+                <input type="number"
+                       step="any"
+                       class="form-control"
+                       name="{{ variable.name }}"
+                       value="{{ form_data.get(variable.name, [''])[0] }}"
+                       {% if variable.required %}required{% endif %}>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% endif %}
+
+        {% if category.slug == "complaints" %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <label class="form-label fw-bold">
+                    Дополнительные жалобы
+                    <span class="text-muted fw-normal small">
+                        (необязательное поле)
+                    </span>
+                </label>
+                <textarea class="form-control"
+                          name="custom_complaints"
+                          rows="3"
+                          placeholder="Введите дополнительные жалобы...">{{ form_data.get('custom_complaints', [''])[0] }}</textarea>
+            </div>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-success">
+            Сохранить
+        </button>
+    </form>
+    {% if category.slug == "prescriptions" %}
+
+        <!-- Шаблон совместного препарата -->
+        <template id="additional-medication-template">
+
+            <div class="additional-medication-row row g-2 mb-2">
+
+                <!-- Препарат -->
+                <div class="col-md-4">
+                    <select class="form-select"
+                            name="additional_medication_id[0][0][]"
+                            required>
+                        <option value="">Выберите препарат</option>
+                    </select>
+                </div>
+
+                <!-- Дозировка -->
+                <div class="col-md-3">
+                    <input type="text"
+                           name="additional_dose[0][0][]"
+                           class="form-control"
+                           placeholder="доза"
+                           required>
+                </div>
+
+                <!-- Единица измерения -->
+                <div class="col-md-3">
+                    <select name="additional_unit[0][0][]"
+                            class="form-select"
+                            required>
+
+                        <option value="">Выберите единицу измерения</option>
+
+                        {% for value in sources["Единицы измерения"].values %}
+                        <option value="{{ value.name }}">
+                            {{ value.name }}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <!-- Удаление совместного препарата -->
+                <div class="col-md-2">
+                    <button type="button"
+                            class="btn btn-outline-danger remove-additional-medication w-100">
+                        Удалить
+                    </button>
+                </div>
+
+            </div>
+
+        </template>
+
+        {% endif %}
+    {% if generated_text %}
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4>Результат</h4>
+            <p style="white-space: pre-wrap;">{{ generated_text }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/fill_category.css') }}">
+
+<script>
+    window.savedFormData = {{ form_data | tojson }};
+</script>
+
+<script src="{{ url_for('static', filename='js/fill_category.js') }}"></script>
+{% endblock content %}

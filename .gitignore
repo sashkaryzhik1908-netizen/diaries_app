@@ -1,0 +1,45 @@
+# Виртуальное окружение
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Переменные окружения и секретные ключи
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+
+# Временные файлы
+*.log
+*.tmp
+*.bak
+
+# Тестирование и анализ кода
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Резервные копии базы данных
+instance/database_backup.db
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Архивы
+*.zip
+
+# Сборки и установщики
+build/
+dist/
+installer/
+*.exe

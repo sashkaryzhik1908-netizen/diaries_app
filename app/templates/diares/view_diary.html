@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}
+Дневник №{{ diary.number }}
+{% endblock title %}
+
+{% block content %}
+<br>
+<div class="container">
+
+    <h1>Дневник №{{ diary.number }}</h1>
+
+    <p class="text-muted">
+        Создан: {{ to_local_time(diary.created_at).strftime("%d.%m.%Y %H:%M") }}
+    </p>
+
+    <hr>
+
+    <h3 class="mb-3">Категории</h3>
+
+    {% for category in categories %}
+    <div class="card mb-2">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <span>{{ category.name }}</span>
+
+            <a
+                href="{{ url_for(
+                    'diary_entries.fill_category',
+                    diary_id=diary.id,
+                    category_id=category.id
+                ) }}"
+                class="btn btn-primary"
+            >
+                Заполнить
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="card mb-2">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <span>Лаборатория</span>
+
+            <a
+                href="{{ url_for(
+                    'laboratory.diary_laboratory',
+                    diary_id=diary.id
+                ) }}"
+                class="btn btn-primary"
+            >
+                Заполнить
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <span>Инструментальные исследования</span>
+
+            <a
+                href="{{ url_for(
+                    'instrumental.diary_instrumental',
+                    diary_id=diary.id
+                ) }}"
+                class="btn btn-primary"
+            >
+                Заполнить
+            </a>
+        </div>
+    </div>
+
+    <hr>
+
+    <h3 class="mb-3">Содержимое дневника</h3>
+
+    <div id="diary-content">
+
+        {% set prescriptions = namespace(entry=None) %}
+        {% set diagnosis = namespace(entry=None) %}
+
+        {% for entry in entries %}
+
+            {% if entry.category.slug == "prescriptions" %}
+
+                {% set prescriptions.entry = entry %}
+
+            {% elif entry.category.slug == "diagnosis" %}
+
+                {% set diagnosis.entry = entry %}
+
+            {% else %}
+
+                <p class="mb-3" style="white-space: pre-line;">{{ entry.text | trim }}</p>
+
+            {% endif %}
+
+        {% endfor %}
+
+        <!-- Лабораторные исследования -->
+        {% if laboratory_text %}
+            <p class="mb-1">
+                <strong>Лабораторные исследования</strong>
+            </p>
+
+            <p class="mb-3" style="white-space: pre-line;">{{ laboratory_text | trim }}</p>
+        {% endif %}
+
+        <!-- Инструментальные исследования -->
+        {% if diary.instrumental_source and diary.instrumental_source.result_text %}
+            <p class="mb-1">
+                <strong>Инструментальные исследования</strong>
+            </p>
+
+            <p class="mb-3" style="white-space: pre-line;">{{ diary.instrumental_source.result_text | trim }}</p>
+        {% endif %}
+
+        <!-- Ведущие патологические синдромы -->
+        {% if syndromes %}
+            <p class="mb-1"></p>
+
+            <p class="mb-1">
+                <strong>Ведущие патологические синдромы</strong>
+            </p>
+
+            <ol style="list-style-type: disc; margin-bottom: 0; padding-left: 20px;">
+                {% for syndrome in syndromes %}
+                    <li>{{ syndrome }}</li>
+                {% endfor %}
+            </ol>
+
+            <div class="mb-3"></div>
+        {% endif %}
+
+        <!-- Диагноз -->
+        {% if diagnosis.entry %}
+            <p class="mb-3" style="white-space: pre-line;">{{ diagnosis.entry.text | trim }}</p>
+        {% endif %}
+
+        <!-- План интенсивной терапии -->
+        {% if prescriptions.entry %}
+            <p class="mb-3" style="white-space: pre-line;">{{ prescriptions.entry.text | trim }}</p>
+        {% endif %}
+
+        <!-- Проверка пустого дневника -->
+        {% if not entries
+                and not laboratory_text
+                and not (diary.instrumental_source and diary.instrumental_source.result_text)
+                and not syndromes %}
+
+            <p class="text-muted">Дневник пока пуст.</p>
+
+        {% endif %}
+
+        <p class="mb-3">
+            <strong>дежурный реаниматолог: {{ diary.user.name }}</strong>
+        </p>
+
+    </div>
+
+    {% if entries
+        or laboratory_text
+        or (diary.instrumental_source and diary.instrumental_source.result_text)
+        or syndromes %}
+
+        <button
+            type="button"
+            class="btn btn-primary mt-2"
+            onclick="copyDiary()"
+        >
+            Копировать дневник
+        </button>
+
+    {% endif %}
+
+    <br>
+
+    <a
+        href="{{ url_for('diaries.list_diaries') }}"
+        class="btn btn-secondary mt-3"
+    >
+        К списку дневников
+    </a>
+
+    <br><br>
+
+    <form
+        method="POST"
+        action="{{ url_for('diaries.delete_diary', diary_id=diary.id) }}"
+        onsubmit="return confirm('Удалить этот дневник?');"
+    >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <button type="submit" class="btn btn-danger btn-sm">
+            Удалить
+        </button>
+    </form>
+
+</div>
+
+<script>
+    function copyDiary() {
+        const content = document.getElementById("diary-content");
+
+        let text = content.innerText.trim();
+
+        text = text
+            .replace(/[ \t]+\n/g, "\n")
+            .replace(/\n{2,}/g, "\n")
+            .replace(/ +\./g, ".");
+
+        navigator.clipboard.writeText(text)
+            .then(() => alert("Дневник скопирован"))
+            .catch(() => alert("Не удалось скопировать дневник"));
+    }
+</script>
+
+{% endblock content %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}
+Инструментальные методы
+{% endblock title %}
+
+{% block content %}
+<br><div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1>Инструментальные методы</h1>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{{ url_for(
+                'instrumental.add_indicator'
+            ) }}"
+               class="btn btn-primary">
+                Добавить метод
+            </a>
+
+            <a href="{{ url_for(
+                'instrumental.list_indicators'
+            ) }}"
+               class="btn btn-secondary">
+                Назад
+            </a>
+        </div>
+
+    </div>
+
+    {% include "_flash_messages.html" %}
+
+    {% if indicators %}
+
+        <div class="list-group">
+
+            {% for indicator in indicators %}
+
+                <div class="list-group-item">
+
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <div class="flex-grow-1">
+
+                            <h5 class="mb-1">
+                                {{ indicator.name }}
+                            </h5>
+
+                            {% if indicator.aliases %}
+                                <div class="mt-2">
+
+                                    <small class="text-muted">
+                                        Альтернативные названия:
+                                    </small>
+
+                                    {% for alias in indicator.aliases %}
+                                        <span class="badge bg-secondary me-1">
+                                            {{ alias.alias }}
+                                        </span>
+                                    {% endfor %}
+
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap">
+
+                            <a href="{{ url_for(
+                                'instrumental.list_aliases',
+                                indicator_id=indicator.id
+                            ) }}"
+                               class="btn btn-sm btn-outline-secondary">
+                                Алиасы
+                            </a>
+
+                            <a href="{{ url_for(
+                                'instrumental.edit_indicator',
+                                indicator_id=indicator.id
+                            ) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                Изменить
+                            </a>
+
+                            <form method="POST"
+                                  action="{{ url_for(
+                                      'instrumental.delete_indicator',
+                                      indicator_id=indicator.id
+                                  ) }}"
+                                  onsubmit="return confirm('Удалить инструментальный метод?');">
+
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       value="{{ csrf_token() }}">
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-danger">
+                                    Удалить
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+            Пока нет инструментальных методов.
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock content %}

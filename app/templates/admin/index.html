@@ -1,0 +1,46 @@
+
+{% extends 'admin/master.html' %}
+
+{% block body %}
+    <h2>Панель управления</h2>
+
+    <div class="row mt-4">
+
+        <div class="col-md-3">
+            <div class="card text-bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Пользователи</h5>
+                    <h2>{{ stats.users }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Категории</h5>
+                    <h2>{{ stats.categories }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Переменные</h5>
+                    <h2>{{ stats.variables }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Опции</h5>
+                    <h2>{{ stats.options }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

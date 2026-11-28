@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Список шаблонов{% endblock title %}
+{% block content %}
+<br><div class="container">
+  
+      <a class="btn btn-outline-primary" href="{{ url_for('categories.add_category') }}">Создать шаблон категории</a>
+    
+</div><hr><br>
+{% for category in categories %}
+  <div class="container">
+    <h2>{{ category.name }}</h2>
+    <p>{{ category.template }}</p>
+    <a class="btn btn-warning" href="{{ url_for('categories.edit_category', category_id=category.id) }}">Редактировать шаблон категории</a>
+    <a class="btn btn-warning" href="{{ url_for('categories.view_category', category_id=category.id) }}">Редактировать переменые и опции</a>
+    <hr>
+  </div>
+{% endfor %}
+{% endblock content %}

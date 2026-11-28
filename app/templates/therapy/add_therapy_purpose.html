@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if "edit" in request.path %}
+Редактор цели терапии
+{% else %}
+Добавление цели терапии
+{% endif %}
+{% endblock title %}
+
+{% block content %}
+<br><div class="container">
+    {% if "edit" in request.path %}
+    <h1 class="mb-4">Редактор цели терапии</h1>
+    {% else %}
+    <h1 class="mb-4">Добавление цели терапии</h1>
+    {% endif %}
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control form-control-lg") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.output_value.label(class="form-label") }}
+            {{ form.output_value(class="form-control form-control-lg") }}
+        </div>
+
+        {{ form.submit(class="btn btn-primary btn-lg") }}
+
+        <a href="{{ url_for('therapy.list_therapy_purposes') }}"
+           class="btn btn-secondary btn-lg">
+            Назад
+        </a>
+
+    </form>
+
+</div>
+{% endblock content %}

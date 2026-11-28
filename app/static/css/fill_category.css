@@ -1,0 +1,26 @@
+.medication-row {
+    position: relative;
+}
+
+.medication-row + .medication-row {
+    margin-top: 30px;
+}
+
+.medication-row + .medication-row::before {
+    content: "+";
+    position: absolute;
+    left: 0;
+    top: -29px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.prescription-row {
+    border-color: #adb5bd !important;
+    background-color: #f8f9fa;
+}
+.medication-delete-field {
+    grid-column: 12 / 13;
+    justify-self: stretch;
+}
